@@ -110,7 +110,24 @@ mod tests {
     fn encode_message_works() -> Result<()> {
         let expected = "Content-Length: 16\r\n\r\n{\"testing\":true}";
 
-        let msg = JsonRpcResponse { testing: true };
+        let params_bytes = br#"{
+        "textDocument": {
+            "uri": "file:///p%3A/mseng/VSCode/Playgrounds/cpp/use.cpp"
+        },
+        "position": {
+            "line": 3,
+            "character": 12
+        }
+    }
+"#;
+
+        let msg = JsonRpcRequest {
+            jsonrpc: String::from("2.0"),
+            id: Some(Value::from(1)),
+            method: String::from("textDocument/definition"),
+            params: Some(serde_json::from_slice(params_bytes)?),
+        };
+
         let encoded_as_json = encode_message(msg)?;
 
         assert_eq!(encoded_as_json, expected);
